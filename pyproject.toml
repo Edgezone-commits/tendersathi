@@ -17,6 +17,7 @@ dependencies = [
     "pymupdf>=1.24.0",
     "pytesseract>=0.3.13",
     "pillow>=10.4.0",
+    "nepali-datetime>=1.0.8.5",
 ]
 
 [dependency-groups]

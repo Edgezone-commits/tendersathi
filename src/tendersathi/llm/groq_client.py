@@ -29,6 +29,7 @@ class GroqClient(LLMClient):
         prompt: str,
         response_model: type[ResponseModel],
         max_retries: int = 2,
+        max_tokens: int | None = None,
     ) -> ResponseModel:
         system_prompt = _build_system_prompt(response_model)
         messages = [
@@ -42,6 +43,7 @@ class GroqClient(LLMClient):
                 model=self.model,
                 messages=messages,
                 response_format={"type": "json_object"},
+                **({"max_tokens": max_tokens} if max_tokens is not None else {}),
             )
             content = completion.choices[0].message.content
             try:

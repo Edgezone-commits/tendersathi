@@ -68,6 +68,32 @@ def test_generate_raises_after_exhausting_retries(mock_groq_cls: MagicMock) -> N
     assert mock_sdk_client.chat.completions.create.call_count == 2
 
 
+@patch("tendersathi.llm.groq_client.Groq")
+def test_generate_passes_max_tokens_through_when_given(mock_groq_cls: MagicMock) -> None:
+    mock_sdk_client = MagicMock()
+    mock_sdk_client.chat.completions.create.return_value = _mock_completion('{"value": 1}')
+    mock_groq_cls.return_value = mock_sdk_client
+
+    client = GroqClient(api_key="fake-key", model="fake-model")
+    client.generate("What is 1?", Answer, max_tokens=500)
+
+    _, kwargs = mock_sdk_client.chat.completions.create.call_args
+    assert kwargs["max_tokens"] == 500
+
+
+@patch("tendersathi.llm.groq_client.Groq")
+def test_generate_omits_max_tokens_when_not_given(mock_groq_cls: MagicMock) -> None:
+    mock_sdk_client = MagicMock()
+    mock_sdk_client.chat.completions.create.return_value = _mock_completion('{"value": 1}')
+    mock_groq_cls.return_value = mock_sdk_client
+
+    client = GroqClient(api_key="fake-key", model="fake-model")
+    client.generate("What is 1?", Answer)
+
+    _, kwargs = mock_sdk_client.chat.completions.create.call_args
+    assert "max_tokens" not in kwargs
+
+
 def test_missing_api_key_raises_clear_error(monkeypatch) -> None:
     monkeypatch.setattr("tendersathi.config.GROQ_API_KEY", None)
 
