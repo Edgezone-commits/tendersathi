@@ -25,3 +25,6 @@ def get_env(name: str, default: str | None = None, required: bool = False) -> st
 LLM_PROVIDER = get_env("LLM_PROVIDER", default="groq")
 GROQ_API_KEY = get_env("GROQ_API_KEY")
 GROQ_MODEL = get_env("GROQ_MODEL", default="llama-3.3-70b-versatile")
+
+SUPABASE_URL = get_env("SUPABASE_URL")
+SUPABASE_KEY = get_env("SUPABASE_KEY")
