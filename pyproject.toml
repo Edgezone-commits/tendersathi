@@ -18,6 +18,8 @@ dependencies = [
     "pytesseract>=0.3.13",
     "pillow>=10.4.0",
     "nepali-datetime>=1.0.8.5",
+    "langgraph-checkpoint-postgres>=3.2.1",
+    "psycopg[binary,pool]>=3.3.9",
 ]
 
 [dependency-groups]
