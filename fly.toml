@@ -1,0 +1,32 @@
+# Fly.io app config (Phase 8). Create the app once with `fly apps create
+# tendersathi` (or edit the name below to whatever `fly launch` picked),
+# then deploy with `fly deploy`. Secrets (SUPABASE_URL, SUPABASE_KEY,
+# DATABASE_URL, GROQ_API_KEY, GMAIL_ADDRESS, GMAIL_APP_PASSWORD,
+# DIGEST_RECIPIENT_EMAIL, LANGFUSE_PUBLIC_KEY, LANGFUSE_SECRET_KEY) are set
+# with `fly secrets set NAME=value`, never written here.
+app = "tendersathi"
+primary_region = "sin"
+
+[build]
+
+[processes]
+  app = "uv run uvicorn tendersathi.api.app:app --host 0.0.0.0 --port 8080"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+  [[http_service.checks]]
+    grace_period = "10s"
+    interval = "30s"
+    method = "GET"
+    timeout = "5s"
+    path = "/health"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "256mb"

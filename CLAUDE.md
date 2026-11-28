@@ -116,8 +116,8 @@ evals/          # offline evaluation scripts/datasets for agent quality
   scheduled run.
 - **Phase 7 — Evals + Langfuse**: offline eval suite, tracing wired into
   every LLM call.
-- **Phase 8 — FastAPI + Fly.io deploy**: expose the system over HTTP and
-  deploy it.
+- **Phase 8 — FastAPI + Fly.io deploy**: expose the system over HTTP
+  (companies, tenders, matches, pipeline start/approval) and deploy it.
 - **Phase 9 — Next.js frontend**: deployed to Vercel.
 - **Phase 10 — MCP server + README + demo polish**.
 
@@ -182,4 +182,31 @@ evals/          # offline evaluation scripts/datasets for agent quality
 - **Needs a real Langfuse account before tracing does anything**: without
   `LANGFUSE_PUBLIC_KEY`/`LANGFUSE_SECRET_KEY` in `.env`, every LLM call
   still works but produces no trace (silently disabled, by design).
-- Next phase: **Phase 8** (FastAPI + Fly.io deploy).
+- **Phase 8 is code-complete and committed**: `tendersathi.api.app` exposes
+  the pipeline over HTTP -- `/companies` (create/list/get), `/tenders`
+  (list/get, `/tenders/{id}/matches`), and `/pipeline/runs` (start a tender
+  through the LangGraph pipeline) /
+  `/pipeline/runs/{thread_id}/decision` (submit the human-approval
+  decision, resuming past the interrupt). The Supabase client and compiled
+  graph are both built once in the app's `lifespan`, not per-request, same
+  one-client-per-process pattern as `daily_run.py`. `/health` touches no
+  dependency (what Fly.io's health check hits). Routes are tested with
+  `fastapi.testclient.TestClient` + `app.dependency_overrides` (never the
+  real `lifespan` -- confirmed a plain `TestClient(app)` used outside a
+  `with` block doesn't trigger it, so no test opens a real connection).
+  Added `fly.toml` for deploy (`fly launch`/`fly deploy`, secrets via
+  `fly secrets set`).
+  **Found and fixed a real bug while smoke-testing this phase**: the
+  Postgres checkpointer (`tendersathi.orchestration.checkpointer`) used
+  `PostgresSaver.from_conn_string`, which hardcodes `prepare_threshold=0`
+  (prepare every statement). Supabase's transaction-mode pooler
+  multiplexes clients onto shared backend connections and doesn't clear
+  prepared-statement state between them, so a second process connecting
+  (e.g. restarting the API, or the cron overlapping it) intermittently hit
+  `psycopg.errors.DuplicatePreparedStatement`. Fixed by connecting
+  directly with `prepare_threshold=None` (disables prepared statements
+  outright -- not needed here, every checkpoint query runs once per
+  request). Verified by starting the server three times in a row and by
+  hitting `/companies`/`/tenders` against the live Supabase project. All
+  tests pass (125), ruff is clean.
+- Next phase: **Phase 9** (Next.js frontend).
