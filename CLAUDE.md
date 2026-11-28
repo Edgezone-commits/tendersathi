@@ -120,3 +120,17 @@ evals/          # offline evaluation scripts/datasets for agent quality
   deploy it.
 - **Phase 9 — Next.js frontend**: deployed to Vercel.
 - **Phase 10 — MCP server + README + demo polish**.
+
+## Current status / pending
+
+- Phases 0-5 are code-complete and committed (Scout, Matcher, Eligibility,
+  Drafter agents + LangGraph orchestration with a Postgres checkpointer and
+  a human-approval interrupt). All tests pass, ruff is clean.
+- **Verified**: the Postgres checkpointer (`tendersathi.orchestration.checkpointer`)
+  connects successfully. `DATABASE_URL` in `.env` now uses Supabase's
+  **connection pooler** (Transaction mode, `aws-0-ap-northeast-1.pooler.supabase.com:6543`,
+  user `postgres.<project-ref>`) instead of the direct host, which resolved
+  to an IPv6-only address and timed out from this machine's network. The
+  smoke test (`uv run python -c "from tendersathi.orchestration.checkpointer
+  import get_checkpointer; get_checkpointer().__enter__()"`) passes.
+- Next phase: **Phase 6** (Telegram notifier + GitHub Actions cron).
