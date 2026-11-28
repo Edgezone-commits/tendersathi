@@ -15,8 +15,16 @@ load_dotenv()
 
 
 def get_env(name: str, default: str | None = None, required: bool = False) -> str | None:
-    """Read an environment variable, optionally raising if it's missing."""
+    """Read an environment variable, optionally raising if it's missing.
+
+    Strips surrounding whitespace: pasting a secret into a dashboard field
+    (Render, GitHub Actions) easily leaves a trailing newline, which is
+    invisible in the UI but turns e.g. `DATABASE_URL`'s database name into
+    `"postgres\n"` and fails to connect with a confusing error.
+    """
     value = os.environ.get(name, default)
+    if value is not None:
+        value = value.strip()
     if required and not value:
         raise RuntimeError(f"Missing required environment variable: {name}")
     return value
