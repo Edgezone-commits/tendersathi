@@ -38,7 +38,7 @@ A multi-agent system with five stages:
   Matcher for semantic similarity between a company profile and a tender).
 - **Tracing**: Langfuse wraps LLM calls so every prompt/response pair is
   inspectable — essential for explaining and debugging agent behaviour.
-- **API**: FastAPI backend (deployed later to Fly.io).
+- **API**: FastAPI backend (deployed later to Render).
 - **Frontend**: Next.js (deployed later to Vercel).
 - **Scheduling**: GitHub Actions cron triggers the daily ingestion run.
 
@@ -116,7 +116,7 @@ evals/          # offline evaluation scripts/datasets for agent quality
   scheduled run.
 - **Phase 7 — Evals + Langfuse**: offline eval suite, tracing wired into
   every LLM call.
-- **Phase 8 — FastAPI + Fly.io deploy**: expose the system over HTTP
+- **Phase 8 — FastAPI + Render deploy**: expose the system over HTTP
   (companies, tenders, matches, pipeline start/approval) and deploy it.
 - **Phase 9 — Next.js frontend**: deployed to Vercel.
 - **Phase 10 — MCP server + README + demo polish**.
@@ -190,12 +190,20 @@ evals/          # offline evaluation scripts/datasets for agent quality
   decision, resuming past the interrupt). The Supabase client and compiled
   graph are both built once in the app's `lifespan`, not per-request, same
   one-client-per-process pattern as `daily_run.py`. `/health` touches no
-  dependency (what Fly.io's health check hits). Routes are tested with
+  dependency (what the host's health check hits). Routes are tested with
   `fastapi.testclient.TestClient` + `app.dependency_overrides` (never the
   real `lifespan` -- confirmed a plain `TestClient(app)` used outside a
   `with` block doesn't trigger it, so no test opens a real connection).
-  Added `fly.toml` for deploy (`fly launch`/`fly deploy`, secrets via
-  `fly secrets set`).
+  **Deploying to Render, not Fly.io**: Fly's trial ended and it now
+  requires a credit card to create an app, which violates this project's
+  "no paid services" rule; Render's free web-service plan needs no card
+  (750 free instance-hours/month, sleeps after 15 min idle, ~1 min cold
+  start on the next request). Added `render.yaml` (a Blueprint -- push to
+  GitHub, then on render.com: New -> Blueprint -> connect the repo).
+  Secrets (`SUPABASE_URL`, `SUPABASE_KEY`, `DATABASE_URL`, `GROQ_API_KEY`,
+  `GMAIL_ADDRESS`, `GMAIL_APP_PASSWORD`, `DIGEST_RECIPIENT_EMAIL`,
+  `LANGFUSE_PUBLIC_KEY`, `LANGFUSE_SECRET_KEY`) are `sync: false` in the
+  blueprint -- entered in Render's dashboard, never committed.
   **Found and fixed a real bug while smoke-testing this phase**: the
   Postgres checkpointer (`tendersathi.orchestration.checkpointer`) used
   `PostgresSaver.from_conn_string`, which hardcodes `prepare_threshold=0`

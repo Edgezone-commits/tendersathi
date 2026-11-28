@@ -1,0 +1,35 @@
+# Render Blueprint (Phase 8). Push this to GitHub, then on render.com:
+# New -> Blueprint -> connect this repo -> Render reads this file and
+# proposes the service below. The `sync: false` env vars are prompted for
+# during that setup (or set later under the service's Environment tab) --
+# never written here. Free plan needs no credit card; it sleeps after 15
+# min idle and wakes on the next request (~1 min cold start).
+services:
+  - type: web
+    name: tendersathi
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    dockerCommand: sh -c "uv run uvicorn tendersathi.api.app:app --host 0.0.0.0 --port $PORT"
+    plan: free
+    region: singapore
+    healthCheckPath: /health
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_KEY
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GMAIL_ADDRESS
+        sync: false
+      - key: GMAIL_APP_PASSWORD
+        sync: false
+      - key: DIGEST_RECIPIENT_EMAIL
+        sync: false
+      - key: LANGFUSE_PUBLIC_KEY
+        sync: false
+      - key: LANGFUSE_SECRET_KEY
+        sync: false
