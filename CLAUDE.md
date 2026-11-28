@@ -216,5 +216,22 @@ evals/          # offline evaluation scripts/datasets for agent quality
   outright -- not needed here, every checkpoint query runs once per
   request). Verified by starting the server three times in a row and by
   hitting `/companies`/`/tenders` against the live Supabase project. All
-  tests pass (125), ruff is clean.
+  tests pass (129), ruff is clean.
+- **Deployed and verified live on Render**: https://tendersathi.onrender.com
+  (`/health`, `/tenders`, `/companies` all confirmed serving real Supabase
+  data). Two deploy-time bugs found and fixed along the way:
+  1. `render.yaml`'s `dockerCommand` was `sh -c "uv run uvicorn ... --port
+     $PORT"` -- Render already runs `dockerCommand` through a shell itself
+     (`$PORT` was already substituted by the time the error surfaced), so
+     the extra `sh -c` wrapper made Docker try to exec the whole wrapped
+     string as one literal filename (`sh: 1: uv run uvicorn ...: not
+     found`). Fixed by dropping the wrapper -- just the bare command.
+     Verified by building the Dockerfile locally and running the exact
+     command through `sh -c` before pushing again.
+  2. `DATABASE_URL` had a trailing newline from being pasted into Render's
+     dashboard field (invisible in the UI), which turned the database name
+     into `"postgres\n"` and failed with a confusing
+     `psycopg.OperationalError`. Fixed in `config.get_env` -- it now
+     `.strip()`s every env var it reads, not just this one, since the same
+     paste artifact could hit any secret.
 - Next phase: **Phase 9** (Next.js frontend).
