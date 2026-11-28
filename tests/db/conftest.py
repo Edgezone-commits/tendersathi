@@ -15,7 +15,18 @@ def mock_table() -> MagicMock:
     the same mock, so a test only needs to set `.execute.return_value.data`.
     """
     table = MagicMock()
-    for method in ("select", "eq", "limit", "insert", "upsert", "update", "order"):
+    for method in (
+        "select",
+        "eq",
+        "gte",
+        "is_",
+        "in_",
+        "limit",
+        "insert",
+        "upsert",
+        "update",
+        "order",
+    ):
         getattr(table, method).return_value = table
     return table
 

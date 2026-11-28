@@ -28,7 +28,14 @@ GROQ_MODEL = get_env("GROQ_MODEL", default="llama-3.3-70b-versatile")
 
 SUPABASE_URL = get_env("SUPABASE_URL")
 SUPABASE_KEY = get_env("SUPABASE_KEY")
-# Direct Postgres connection string (Project Settings -> Database -> Connection
-# string), distinct from the REST API URL/key above. Used by the LangGraph
-# checkpointer, which needs a raw SQL connection rather than Supabase's REST API.
+# Postgres connection string, distinct from the REST API URL/key above. Used
+# by the LangGraph checkpointer, which needs a raw SQL connection rather than
+# Supabase's REST API. Use the **connection pooler** string (Project Settings
+# -> Database -> Connection pooling -> Transaction mode), not the direct host
+# -- the direct host resolves IPv6-only on networks without IPv6 egress.
 DATABASE_URL = get_env("DATABASE_URL")
+
+# Telegram notifier (Phase 6): create a bot via @BotFather for the token,
+# and use the chat/channel id the daily digest should be posted to.
+TELEGRAM_BOT_TOKEN = get_env("TELEGRAM_BOT_TOKEN")
+TELEGRAM_CHAT_ID = get_env("TELEGRAM_CHAT_ID")

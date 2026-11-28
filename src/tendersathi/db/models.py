@@ -63,6 +63,7 @@ class MatchRow:
     company_id: str
     score: float
     reasoning: str | None
+    notified_at: datetime | None = None
 
 
 @dataclass(frozen=True)

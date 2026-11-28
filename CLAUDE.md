@@ -133,4 +133,21 @@ evals/          # offline evaluation scripts/datasets for agent quality
   to an IPv6-only address and timed out from this machine's network. The
   smoke test (`uv run python -c "from tendersathi.orchestration.checkpointer
   import get_checkpointer; get_checkpointer().__enter__()"`) passes.
-- Next phase: **Phase 6** (Telegram notifier + GitHub Actions cron).
+- **Phase 6 is code-complete and committed**: Notifier agent
+  (`tendersathi.agents.notifier`) formats a Telegram digest of unnotified
+  matches (score >= 0.5) and marks them `notified_at` so they aren't resent;
+  `tendersathi.daily_run` wires Matcher -> Notifier for the cron
+  (`.github/workflows/daily-digest.yml`, 03:00 UTC daily +
+  `workflow_dispatch`). Automated ingestion isn't wired into the cron yet --
+  `BolpatraScraper` is still unimplemented (see its docstring), so the cron
+  only re-scores/re-notifies tenders a human has already uploaded manually.
+  Added a `matches.notified_at` column (migration
+  `20260102000000_add_matches_notified_at.sql`) and
+  `TELEGRAM_BOT_TOKEN`/`TELEGRAM_CHAT_ID` to config/`.env.example`. All
+  tests pass (113), ruff is clean.
+- **Needs real secrets before the cron can run for real**: `TELEGRAM_BOT_TOKEN`/
+  `TELEGRAM_CHAT_ID` (create a bot via @BotFather) and the repo's GitHub
+  Actions secrets (`SUPABASE_URL`, `SUPABASE_KEY`, `TELEGRAM_BOT_TOKEN`,
+  `TELEGRAM_CHAT_ID`) haven't been set yet, and the `matches.notified_at`
+  migration hasn't been applied to the live Supabase project.
+- Next phase once that's set up: **Phase 7** (Evals + Langfuse tracing).
