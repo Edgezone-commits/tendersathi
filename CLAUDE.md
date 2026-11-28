@@ -234,4 +234,10 @@ evals/          # offline evaluation scripts/datasets for agent quality
      `psycopg.OperationalError`. Fixed in `config.get_env` -- it now
      `.strip()`s every env var it reads, not just this one, since the same
      paste artifact could hit any secret.
-- Next phase: **Phase 9** (Next.js frontend).
+- **Next up: Phase 9 (Next.js frontend)**, not started yet. It will talk to
+  the Phase 8 API (https://tendersathi.onrender.com, routes in
+  `src/tendersathi/api/`): a companies view, a tenders/matches view, and a
+  screen to start a pipeline run and submit the human-approval decision
+  (`POST /pipeline/runs`, `POST /pipeline/runs/{thread_id}/decision`).
+  Deployed later to Vercel per the Architecture section. Nothing scaffolded
+  for this yet -- no `frontend/` or similar directory exists in the repo.
