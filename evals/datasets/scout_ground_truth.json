@@ -1,0 +1,37 @@
+[
+  {
+    "file": "anti rabies vaccine.pdf",
+    "title_keywords": ["anti-rabies", "vaccine"],
+    "procuring_entity_keywords": ["health logistics management center"],
+    "district_keywords": ["makwanpur", "makawanpur"],
+    "category_keywords": ["medic", "health", "pharma", "drug", "vaccine", "supplies"]
+  },
+  {
+    "file": "antihemophilic.pdf",
+    "title_keywords": ["hemophilic"],
+    "procuring_entity_keywords": ["health logistics management center"],
+    "district_keywords": ["makwanpur", "makawanpur"],
+    "category_keywords": ["medic", "health", "pharma", "drug", "supplies"]
+  },
+  {
+    "file": "ndc medicine.pdf",
+    "title_keywords": ["medicine"],
+    "procuring_entity_keywords": ["health logistics management center"],
+    "district_keywords": ["makwanpur", "makawanpur"],
+    "category_keywords": ["medic", "health", "pharma", "drug", "supplies"]
+  },
+  {
+    "file": "supply delivery.pdf",
+    "title_keywords": ["x-ray"],
+    "procuring_entity_keywords": ["health logistics management center"],
+    "district_keywords": ["makwanpur", "makawanpur"],
+    "category_keywords": ["equipment", "medic", "health", "x-ray"]
+  },
+  {
+    "file": "Various Office Equipment for NA (PKG-1).pdf",
+    "title_keywords": ["office equipment"],
+    "procuring_entity_keywords": ["master general of ordnance"],
+    "district_keywords": ["kathmandu"],
+    "category_keywords": ["equipment", "office"]
+  }
+]

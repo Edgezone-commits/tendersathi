@@ -1606,7 +1606,7 @@ requires-dist = [
     { name = "fastapi", specifier = ">=0.115.0" },
     { name = "groq", specifier = ">=0.13.0" },
     { name = "httpx", specifier = ">=0.27.0" },
-    { name = "langfuse", specifier = ">=2.53.0" },
+    { name = "langfuse", specifier = ">=3.0.0" },
     { name = "langgraph", specifier = ">=0.2.60" },
     { name = "langgraph-checkpoint-postgres", specifier = ">=3.2.1" },
     { name = "nepali-datetime", specifier = ">=1.0.8.5" },

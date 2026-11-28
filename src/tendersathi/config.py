@@ -39,3 +39,11 @@ DATABASE_URL = get_env("DATABASE_URL")
 # and use the chat/channel id the daily digest should be posted to.
 TELEGRAM_BOT_TOKEN = get_env("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = get_env("TELEGRAM_CHAT_ID")
+
+# Langfuse (Phase 7): free account at https://cloud.langfuse.com. Passed
+# explicitly to the Langfuse client in tendersathi.llm.tracing rather than
+# left for its SDK to read from the environment itself, same reasoning as
+# every other credential in this module.
+LANGFUSE_PUBLIC_KEY = get_env("LANGFUSE_PUBLIC_KEY")
+LANGFUSE_SECRET_KEY = get_env("LANGFUSE_SECRET_KEY")
+LANGFUSE_HOST = get_env("LANGFUSE_HOST", default="https://cloud.langfuse.com")

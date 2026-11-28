@@ -150,4 +150,28 @@ evals/          # offline evaluation scripts/datasets for agent quality
   Actions secrets (`SUPABASE_URL`, `SUPABASE_KEY`, `TELEGRAM_BOT_TOKEN`,
   `TELEGRAM_CHAT_ID`) haven't been set yet, and the `matches.notified_at`
   migration hasn't been applied to the live Supabase project.
-- Next phase once that's set up: **Phase 7** (Evals + Langfuse tracing).
+- **Phase 7 is code-complete and committed**: `tendersathi.llm.tracing`
+  wraps every LLM call in a Langfuse generation span (`get_llm_client()`
+  now returns a `TracedLLMClient`, not the raw provider client -- updated
+  the one test that asserted otherwise), recording prompt/output/model and
+  marking the span `ERROR` on any exception. Credentials are read via
+  `config.LANGFUSE_PUBLIC_KEY`/`LANGFUSE_SECRET_KEY`/`LANGFUSE_HOST`
+  (already in `.env.example`) rather than Langfuse's own env fallback, same
+  pattern as every other client in this codebase; a missing key just
+  disables tracing rather than raising, so local dev without a Langfuse
+  account is unaffected. Pinned `langfuse>=3.0.0` in `pyproject.toml` -- the
+  code needs the v3+ OTEL-based API, which `>=2.53.0` would not have
+  guaranteed. Added `evals/eval_scout.py` + `evals/datasets/
+  scout_ground_truth.json`: a scored offline eval (distinct from the
+  existing manual `run_scout_on_samples.py`) that runs Scout against the
+  sample PDFs and grades title/procuring_entity/district/category against
+  hand-verified ground truth (every keyword was confirmed by reading the
+  samples' raw extracted text directly), exiting non-zero below a loose
+  accuracy threshold. Matcher/Eligibility/Drafter evals are **not** built
+  yet -- Matcher is deterministic and already covered by its unit tests;
+  Eligibility/Drafter would need their own hand-verified ground truth,
+  deferred for now. All tests pass (115), ruff is clean.
+- **Needs a real Langfuse account before tracing does anything**: without
+  `LANGFUSE_PUBLIC_KEY`/`LANGFUSE_SECRET_KEY` in `.env`, every LLM call
+  still works but produces no trace (silently disabled, by design).
+- Next phase: **Phase 8** (FastAPI + Fly.io deploy).
