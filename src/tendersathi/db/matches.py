@@ -46,7 +46,7 @@ def list_matches_for_tender(client: Client, tender_id: str) -> list[MatchRow]:
 def list_unnotified_matches(client: Client, min_score: float) -> list[MatchRow]:
     """List matches at or above `min_score` that haven't gone out in a digest yet.
 
-    Used by the Notifier (Phase 6) to build each day's Telegram digest
+    Used by the Notifier (Phase 6) to build each day's email digest
     without resending a match a company already saw in a previous run.
     """
     response = (

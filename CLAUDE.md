@@ -19,7 +19,7 @@ A multi-agent system with five stages:
    ("required / you have / missing"), with every claim citing a page number.
 4. **Drafter agent** — prepares a document checklist and cover-letter draft.
    **Requires human approval before it is finalised.**
-5. **Notifier** — sends a daily Telegram digest of matched tenders.
+5. **Notifier** — sends a daily email digest of matched tenders (Gmail SMTP).
 
 ## Architecture
 
@@ -93,7 +93,7 @@ evals/          # offline evaluation scripts/datasets for agent quality
 
 - Every module under `src/tendersathi/` has a corresponding test module
   under `tests/`.
-- Tests mock external services (Groq, Supabase, Telegram, HTTP fetches) —
+- Tests mock external services (Groq, Supabase, Gmail SMTP, HTTP fetches) —
   no test should make a real network call.
 - Never mark a phase "done" with failing tests. Run `uv run pytest` and
   `uv run ruff check .` before moving to the next phase.
@@ -112,7 +112,7 @@ evals/          # offline evaluation scripts/datasets for agent quality
 - **Phase 5 — LangGraph orchestration**: wire the agents into a graph with
   checkpointing and a human-approval interrupt before the Drafter finalises
   output.
-- **Phase 6 — Telegram notifier + GitHub Actions cron**: daily digest, daily
+- **Phase 6 — Email notifier + GitHub Actions cron**: daily digest, daily
   scheduled run.
 - **Phase 7 — Evals + Langfuse**: offline eval suite, tracing wired into
   every LLM call.
@@ -134,7 +134,7 @@ evals/          # offline evaluation scripts/datasets for agent quality
   smoke test (`uv run python -c "from tendersathi.orchestration.checkpointer
   import get_checkpointer; get_checkpointer().__enter__()"`) passes.
 - **Phase 6 is code-complete and committed**: Notifier agent
-  (`tendersathi.agents.notifier`) formats a Telegram digest of unnotified
+  (`tendersathi.agents.notifier`) formats an email digest of unnotified
   matches (score >= 0.5) and marks them `notified_at` so they aren't resent;
   `tendersathi.daily_run` wires Matcher -> Notifier for the cron
   (`.github/workflows/daily-digest.yml`, 03:00 UTC daily +
@@ -142,14 +142,22 @@ evals/          # offline evaluation scripts/datasets for agent quality
   `BolpatraScraper` is still unimplemented (see its docstring), so the cron
   only re-scores/re-notifies tenders a human has already uploaded manually.
   Added a `matches.notified_at` column (migration
-  `20260102000000_add_matches_notified_at.sql`) and
-  `TELEGRAM_BOT_TOKEN`/`TELEGRAM_CHAT_ID` to config/`.env.example`. All
-  tests pass (113), ruff is clean.
-- **Needs real secrets before the cron can run for real**: `TELEGRAM_BOT_TOKEN`/
-  `TELEGRAM_CHAT_ID` (create a bot via @BotFather) and the repo's GitHub
-  Actions secrets (`SUPABASE_URL`, `SUPABASE_KEY`, `TELEGRAM_BOT_TOKEN`,
-  `TELEGRAM_CHAT_ID`) haven't been set yet, and the `matches.notified_at`
-  migration hasn't been applied to the live Supabase project.
+  `20260102000000_add_matches_notified_at.sql`).
+- **Notifier channel switched from Telegram to Gmail SMTP** (user decision,
+  after Phase 6 initially shipped with a Telegram bot): `EmailClient` in
+  `tendersathi.agents.notifier` sends the digest via `smtplib`/`email`
+  (stdlib only, no new dependency), authenticated with a Gmail **App
+  Password** rather than the account's real password. Config/`.env.example`
+  now have `GMAIL_ADDRESS`/`GMAIL_APP_PASSWORD`/`DIGEST_RECIPIENT_EMAIL`
+  instead of the old `TELEGRAM_BOT_TOKEN`/`TELEGRAM_CHAT_ID` (removed, not
+  deprecated-in-place). All tests pass (116), ruff is clean.
+- **Needs real secrets before the cron can run for real**: `GMAIL_ADDRESS`/
+  `GMAIL_APP_PASSWORD` (generate the app password at
+  https://myaccount.google.com/apppasswords, requires 2-Step Verification)
+  and the repo's GitHub Actions secrets (`SUPABASE_URL`, `SUPABASE_KEY`,
+  `GMAIL_ADDRESS`, `GMAIL_APP_PASSWORD`, `DIGEST_RECIPIENT_EMAIL`) haven't
+  been set yet, and the `matches.notified_at` migration hasn't been applied
+  to the live Supabase project.
 - **Phase 7 is code-complete and committed**: `tendersathi.llm.tracing`
   wraps every LLM call in a Langfuse generation span (`get_llm_client()`
   now returns a `TracedLLMClient`, not the raw provider client -- updated

@@ -35,10 +35,14 @@ SUPABASE_KEY = get_env("SUPABASE_KEY")
 # -- the direct host resolves IPv6-only on networks without IPv6 egress.
 DATABASE_URL = get_env("DATABASE_URL")
 
-# Telegram notifier (Phase 6): create a bot via @BotFather for the token,
-# and use the chat/channel id the daily digest should be posted to.
-TELEGRAM_BOT_TOKEN = get_env("TELEGRAM_BOT_TOKEN")
-TELEGRAM_CHAT_ID = get_env("TELEGRAM_CHAT_ID")
+# Email notifier (Phase 6): a Gmail account sends the daily digest over
+# SMTP, authenticated with an App Password (https://myaccount.google.com/
+# apppasswords, requires 2-Step Verification on the account) rather than
+# the account's real password. DIGEST_RECIPIENT_EMAIL defaults to
+# GMAIL_ADDRESS (send to yourself) when not set.
+GMAIL_ADDRESS = get_env("GMAIL_ADDRESS")
+GMAIL_APP_PASSWORD = get_env("GMAIL_APP_PASSWORD")
+DIGEST_RECIPIENT_EMAIL = get_env("DIGEST_RECIPIENT_EMAIL")
 
 # Langfuse (Phase 7): free account at https://cloud.langfuse.com. Passed
 # explicitly to the Langfuse client in tendersathi.llm.tracing rather than
